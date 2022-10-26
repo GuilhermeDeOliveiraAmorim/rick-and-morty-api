@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import { SetStateAction, useEffect, useState } from "react";
 
 const Home: NextPage = () => {
-	const [page, setPage] = useState<number | undefined>(1);
+	const [page, setPage] = useState<any>("1");
 
 	const router = useRouter();
 
@@ -36,7 +36,7 @@ const Home: NextPage = () => {
 
 	function handlePaginationChange(
 		e: any,
-		value: SetStateAction<number | undefined>
+		value: SetStateAction<string | string[] | undefined | number>
 	) {
 		setPage(value);
 	}
@@ -80,8 +80,8 @@ const Home: NextPage = () => {
 				</Stack>
 				<div className="flex flex-row flex-wrap p-5 bg-green-500">
 					{data?.results?.map((character: any) => (
-						<div className="w-1/4 p-5">
-							<Card key={character.id} onClick={handleClickOpen} className="cursor-pointer">
+						<div key={character.id} className="w-1/4 p-5">
+							<Card onClick={handleClickOpen} className="cursor-pointer">
 								<CardMedia
 									component="img"
 									image={character.image}
