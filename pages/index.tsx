@@ -6,8 +6,6 @@ import {
 	CardMedia,
 	Dialog,
 	DialogContent,
-	DialogContentText,
-	DialogTitle,
 	Pagination,
 	Snackbar,
 	TextField,
@@ -24,11 +22,48 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
+import axios from "axios";
+
+interface ILocation {
+	name: string;
+}
+interface ICharacter {
+	name: string;
+	species: string;
+	status: string;
+	type: string;
+	location: ILocation;
+	episode: string;
+}
 
 const Home: NextPage = () => {
 	const [page, setPage] = useState<any>(1);
+	const [info, setInfo] = useState<ICharacter>();
+	const [characterId, setCharacterId] = useState(1);
+
+	const [openModal, setOpenModal] = useState(false);
+	const [openToast, setOpenToast] = useState(false);
+
+	const [selectedValue, setSelectedValue] = useState("opa");
+	const [value, setValue] = useState();
 
 	const router = useRouter();
+
+	useEffect(() => {
+		const fetchData = async () => {
+
+			var uri = `https://rickandmortyapi.com/api/character/${characterId}`;
+
+			const response = await axios(uri);
+			setInfo(response.data);
+			// console.log(response.data);
+		};
+		fetchData();
+	}, [characterId]);
+
+	const getCharacterId = (characterId: any) => {
+		setCharacterId(characterId);
+	};
 
 	const { data } = useQuery(
 		["characters", page],
@@ -54,11 +89,6 @@ const Home: NextPage = () => {
 		}
 	}, [router.query.page]);
 
-	const [openModal, setOpenModal] = useState(false);
-	const [openToast, setOpenToast] = useState(false);
-	const [selectedValue, setSelectedValue] = useState("opa");
-	const [value, setValue] = useState(1);
-
 	const handleOpenModal = () => {
 		setOpenModal(true);
 	};
@@ -76,7 +106,6 @@ const Home: NextPage = () => {
 		if (reason === 'clickaway') {
 			return;
 		}
-
 		setOpenToast(false);
 	};
 
@@ -97,10 +126,10 @@ const Home: NextPage = () => {
 						onChange={handlePaginationChange}
 					/>
 				</Stack>
-				<div className="flex flex-row flex-wrap p-5 bg-green-500">
+				<div className="flex flex-row flex-wrap p-1 sm:p-4 lg:p-5 bg-green-500">
 					{data?.results?.map((character: any) => (
-						<div key={character.id} className="w-1/4 p-5">
-							<Card className="hover:drop-shadow-2xl">
+						<div key={character.id} className="w-1/2 sm:w-1/3 lg:w-1/4 p-1 sm:p-4 lg:p-5">
+							<Card className="hover:drop-shadow-2xl" onClick={() => getCharacterId(character.id)}>
 								<div>
 									<CardMedia
 										component="img"
@@ -129,15 +158,30 @@ const Home: NextPage = () => {
 						</div>
 					))}
 				</div>
-				<Dialog open={openModal} onClose={handleCloseModal}>
-					<DialogTitle id="responsive-dialog-title">
-						{"Use Google's location service?"}
-					</DialogTitle>
-					<DialogContent>
-						<DialogContentText>
-							Let Google help apps determine location. This means sending
-							anonymous location data to Google, even when no apps are running.
-						</DialogContentText>
+				<Dialog open={openModal} onClose={handleCloseModal} className="w-full">
+					<DialogContent className="w-[500px] bg-gray-900">
+						<div>
+							<h1 className="text-gray-300 text-2xl mb-1">
+								{info?.name}
+							</h1>
+							<ul className="flex flex-col flex-wrap justify-between gap-2">
+								<li className="bg-green-500 rounded-lg p-2">
+									<b>Species</b>: {info?.species}
+								</li>
+								<li className="bg-green-500 rounded-lg p-2">
+									<b>Status</b>: {info?.status}
+								</li>
+								<li className="bg-green-500 rounded-lg p-2">
+									<b>Type</b>: {(info?.type === "") ? "unknown" : info?.type}
+								</li>
+								<li className="bg-green-500 rounded-lg p-2">
+									<b>Last known location</b>: {info?.location.name}
+								</li>
+								<li className="bg-green-500 rounded-lg p-2">
+									<b>Number of episodes</b>: {info?.episode.length}
+								</li>
+							</ul>
+						</div>
 					</DialogContent>
 				</Dialog>
 				<Stack className="flex align-middle items-center p-5 bg-white">
@@ -159,7 +203,7 @@ const Home: NextPage = () => {
 				message="Note archived"
 				action={"action"}
 			/>
-		</div>
+		</div >
 	);
 };
 
