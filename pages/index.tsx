@@ -4,9 +4,11 @@ import {
 	Card,
 	CardContent,
 	CardMedia,
+	CircularProgress,
 	Dialog,
 	DialogContent,
 	Pagination,
+	Skeleton,
 	Snackbar,
 	TextField,
 	Typography,
@@ -40,6 +42,7 @@ const Home: NextPage = () => {
 	const [page, setPage] = useState<any>(1);
 	const [info, setInfo] = useState<ICharacter>();
 	const [characterId, setCharacterId] = useState(1);
+	const [removeLoading, setRemoveLoading] = useState(false);
 
 	const [openModal, setOpenModal] = useState(false);
 	const [openToast, setOpenToast] = useState(false);
@@ -56,7 +59,7 @@ const Home: NextPage = () => {
 
 			const response = await axios(uri);
 			setInfo(response.data);
-			// console.log(response.data);
+			setRemoveLoading(true);
 		};
 		fetchData();
 	}, [characterId]);
@@ -111,10 +114,10 @@ const Home: NextPage = () => {
 
 	return (
 		<div>
-			<Stack className="flex flex-row justify-between align-middle items-center p-10 bg-green-700 text-white text-2xl">
+			<div className="flex flex-row items-center justify-between p-2 sm:p-10 lg:p-10 bg-green-700 text-white text-2xl">
 				<span>Rick and Morty</span>
 				<TextField label="Search" variant="outlined" className="text-white" />
-			</Stack>
+			</div>
 			<div>
 				<Stack className="flex align-middle items-center p-5 bg-white">
 					<Pagination
@@ -159,30 +162,37 @@ const Home: NextPage = () => {
 					))}
 				</div>
 				<Dialog open={openModal} onClose={handleCloseModal} className="w-full">
-					<DialogContent className="w-[500px] bg-gray-900">
-						<div>
-							<h1 className="text-gray-300 text-2xl mb-1">
-								{info?.name}
-							</h1>
-							<ul className="flex flex-col flex-wrap justify-between gap-2">
-								<li className="bg-green-500 rounded-lg p-2">
-									<b>Species</b>: {info?.species}
-								</li>
-								<li className="bg-green-500 rounded-lg p-2">
-									<b>Status</b>: {info?.status}
-								</li>
-								<li className="bg-green-500 rounded-lg p-2">
-									<b>Type</b>: {(info?.type === "") ? "unknown" : info?.type}
-								</li>
-								<li className="bg-green-500 rounded-lg p-2">
-									<b>Last known location</b>: {info?.location.name}
-								</li>
-								<li className="bg-green-500 rounded-lg p-2">
-									<b>Number of episodes</b>: {info?.episode.length}
-								</li>
-							</ul>
-						</div>
-					</DialogContent>
+					{(!removeLoading)
+						?
+						<CircularProgress />
+
+						:
+
+						<DialogContent className="w-[400px] sm:w-[500px] lg:w-[500px] bg-gray-900">
+							<div>
+								<h1 className="text-gray-300 text-2xl mb-1">
+									{info?.name}
+								</h1>
+								<ul className="flex flex-col flex-wrap justify-between gap-2">
+									<li className="bg-green-500 rounded-lg p-2">
+										<b>Species</b>: {info?.species}
+									</li>
+									<li className="bg-green-500 rounded-lg p-2">
+										<b>Status</b>: {info?.status}
+									</li>
+									<li className="bg-green-500 rounded-lg p-2">
+										<b>Type</b>: {(info?.type === "") ? "unknown" : info?.type}
+									</li>
+									<li className="bg-green-500 rounded-lg p-2">
+										<b>Last known location</b>: {info?.location.name}
+									</li>
+									<li className="bg-green-500 rounded-lg p-2">
+										<b>Number of episodes</b>: {info?.episode.length}
+									</li>
+								</ul>
+							</div>
+						</DialogContent>
+					}
 				</Dialog>
 				<Stack className="flex align-middle items-center p-5 bg-white">
 					<Pagination
