@@ -57,8 +57,6 @@ const Home: NextPage = () => {
   const [info, setInfo] = useState<ICharacter>();
   const [characterId, setCharacterId] = useState(1);
 
-  const [character, setCharacter] = useState<ICharacter>();
-
   const [openModal, setOpenModal] = useState(false);
   const [openToast, setOpenToast] = useState(false);
 
@@ -72,7 +70,6 @@ const Home: NextPage = () => {
 
       const response = await axios(uri);
       setInfo(response.data);
-      setCharacter(response.data);
     };
     fetchData();
   }, [characterId]);
@@ -129,7 +126,7 @@ const Home: NextPage = () => {
 
   async function addToFavorites(id: any) {
     const myCharacter = await axios.get<ICharacter>(`https://rickandmortyapi.com/api/character/${id}`);
-    console.log(myCharacter);
+
     await axios.post(`${api_url}rick-and-morty`, {
       episode: myCharacter.data?.episode.length,
       gender: myCharacter.data?.gender,
@@ -153,17 +150,17 @@ const Home: NextPage = () => {
 
   return (
     <div>
-      <div className="flex flex-row items-center justify-between p-2 sm:p-10 lg:p-10 bg-green-700 text-white text-2xl">
-        <span>Rick and Morty</span>
-        <div className="flex gap-2">
-          <div className="p-2 bg-white rounded">
+      <div className="flex flex-col sm:flex-row lg:flex-row justify-between items-center p-2 sm:p-10 lg:p-10 bg-green-700 text-white text-2xl">
+        <img src="logo.png" alt="Rick & Morty" className="w-52" />
+        <div className="flex justify-between sm:flex lg:flex gap-2 w-full sm:w-auto lg:w-auto">
+          <div className="p-2 bg-white rounded w-1/2">
             <TextField
               label="Search"
               variant="outlined"
               className="text-white"
             />
           </div>
-          <Link href="/favorites" className="p-2 bg-white rounded flex">
+          <Link href="/favorites" className="p-2 bg-white rounded flex w-1/2 justify-center items-center">
             <Button className="text-black">Favorites</Button>
           </Link>
         </div>
