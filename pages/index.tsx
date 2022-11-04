@@ -52,6 +52,10 @@ interface ICharacter {
   type: string;
 }
 
+/**
+ * Adicionar o valor do like no back-end e, mudar o botão para deslike, estrelinha
+ */
+
 const Home: NextPage = () => {
   const [page, setPage] = useState<any>(1);
   const [info, setInfo] = useState<ICharacter>();
@@ -61,6 +65,7 @@ const Home: NextPage = () => {
   const [openToast, setOpenToast] = useState(false);
 
   const [value, setValue] = useState();
+  const [favorite, setFavorite] = useState(1);
 
   const router = useRouter();
 
@@ -125,27 +130,35 @@ const Home: NextPage = () => {
   };
 
   async function addToFavorites(id: any) {
-    const myCharacter = await axios.get<ICharacter>(`https://rickandmortyapi.com/api/character/${id}`);
+    const myCharacter = await axios.get<ICharacter>(
+      `https://rickandmortyapi.com/api/character/${id}`
+    );
 
-    await axios.post(`${api_url}rick-and-morty`, {
-      episode: myCharacter.data?.episode.length,
-      gender: myCharacter.data?.gender,
-      id_api: myCharacter.data?.id,
-      image: myCharacter.data?.image,
-      location: myCharacter.data?.location.name,
-      name: myCharacter.data?.name,
-      origin: myCharacter.data?.origin.name,
-      species: myCharacter.data?.species,
-      status: myCharacter.data?.status,
-      type: myCharacter.data?.type,
-      user_id: "3407fd6b-b4d3-476d-9365-56867b61ae7e",
-    })
+    await axios
+      .post(`${api_url}rick-and-morty`, {
+        episode: myCharacter.data?.episode.length,
+        gender: myCharacter.data?.gender,
+        id_api: myCharacter.data?.id,
+        image: myCharacter.data?.image,
+        location: myCharacter.data?.location.name,
+        name: myCharacter.data?.name,
+        origin: myCharacter.data?.origin.name,
+        species: myCharacter.data?.species,
+        status: myCharacter.data?.status,
+        type: myCharacter.data?.type,
+        user_id: "3407fd6b-b4d3-476d-9365-56867b61ae7e",
+      })
       .then(function (response) {
         console.log(response);
       })
       .catch(function (error) {
         console.log(error);
       });
+  }
+
+  const handleFavorite = (id: number) => {
+    console.log(id);
+    setFavorite(id);
   };
 
   return (
@@ -160,7 +173,10 @@ const Home: NextPage = () => {
               className="text-white"
             />
           </div>
-          <Link href="/favorites" className="p-2 bg-white rounded flex w-1/2 justify-center items-center">
+          <Link
+            href="/favorites"
+            className="p-2 bg-white rounded flex w-1/2 justify-center items-center"
+          >
             <Button className="text-black">Favorites</Button>
           </Link>
         </div>
@@ -204,9 +220,10 @@ const Home: NextPage = () => {
                   </CardContent>
                 </div>
                 <BottomNavigation
-                  value={value}
+                  value={favorite}
                   onChange={(event, newValue) => {
-                    setValue(newValue);
+                    handleFavorite(character.id);
+                    console.log(favorite);
                   }}
                   onClick={handleOpenToast}
                 >
@@ -214,7 +231,6 @@ const Home: NextPage = () => {
                     icon={<FavoriteIcon />}
                     onClick={() => addToFavorites(character.id)}
                   />
-                  <BottomNavigationAction icon={<ShareIcon />} />
                 </BottomNavigation>
               </Card>
             </div>
