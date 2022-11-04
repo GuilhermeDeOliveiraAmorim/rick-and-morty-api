@@ -32,14 +32,25 @@ interface ILocation {
   name: string;
 }
 
-interface ICharacter {
-  id: string;
+interface IEpisodeNumber {
+  episodeNumber: number;
+}
+
+interface IOrigin {
   name: string;
+}
+
+interface ICharacter {
+  episode: IEpisodeNumber;
+  gender: string;
+  id: number;
+  image: string;
+  location: ILocation;
+  name: string;
+  origin: IOrigin;
   species: string;
   status: string;
   type: string;
-  location: ILocation;
-  episode: string;
 }
 
 const Home: NextPage = () => {
@@ -115,7 +126,25 @@ const Home: NextPage = () => {
   };
 
   const addToFavorites = () => {
-    handleJson(info, myData);
+    axios.post("http://localhost:3333/rick-and-morty", {
+      episode: info?.episode.episodeNumber,
+      gender: info?.gender,
+      id_api: info?.id,
+      image: info?.image,
+      location: info?.location.name,
+      name: info?.name,
+      origin: info?.origin.name,
+      species: info?.species,
+      status: info?.status,
+      type: info?.type,
+      user_id: "3407fd6b-b4d3-476d-9365-56867b61ae7e",
+    })
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   return (
@@ -208,7 +237,7 @@ const Home: NextPage = () => {
                   <b>Last known location</b>: {info?.location.name}
                 </li>
                 <li className="bg-green-500 rounded-lg p-2">
-                  <b>Number of episodes</b>: {info?.episode.length}
+                  <b>Number of episodes</b>: {info?.episode.episodeNumber}
                 </li>
               </ul>
             </div>
