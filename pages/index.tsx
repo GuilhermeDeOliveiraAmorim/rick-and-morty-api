@@ -1,3 +1,7 @@
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -12,28 +16,23 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShareIcon from "@mui/icons-material/Share";
+import axios, { AxiosResponse } from "axios";
+import Link from "next/link";
 import { Stack } from "@mui/system";
 import { useQuery } from "@tanstack/react-query";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { SetStateAction, useEffect, useState } from "react";
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShareIcon from "@mui/icons-material/Share";
-import axios from "axios";
-import Link from "next/link";
-import { handleJson } from "../util/handle_data";
-import myData from "../data/data.json";
+import { api_url } from "./api/api_url";
 
 interface ILocation {
   name: string;
 }
 
 interface IEpisodeNumber {
-  episodeNumber: number;
+  length: number;
 }
 
 interface IOrigin {
@@ -58,6 +57,8 @@ const Home: NextPage = () => {
   const [info, setInfo] = useState<ICharacter>();
   const [characterId, setCharacterId] = useState(1);
 
+  const [character, setCharacter] = useState<ICharacter>();
+
   const [openModal, setOpenModal] = useState(false);
   const [openToast, setOpenToast] = useState(false);
 
@@ -71,6 +72,7 @@ const Home: NextPage = () => {
 
       const response = await axios(uri);
       setInfo(response.data);
+      setCharacter(response.data);
     };
     fetchData();
   }, [characterId]);
@@ -125,18 +127,20 @@ const Home: NextPage = () => {
     setOpenToast(false);
   };
 
-  const addToFavorites = () => {
-    axios.post("http://localhost:3333/rick-and-morty", {
-      episode: info?.episode.episodeNumber,
-      gender: info?.gender,
-      id_api: info?.id,
-      image: info?.image,
-      location: info?.location.name,
-      name: info?.name,
-      origin: info?.origin.name,
-      species: info?.species,
-      status: info?.status,
-      type: info?.type,
+  async function addToFavorites(id: any) {
+    const myCharacter = await axios.get<ICharacter>(`https://rickandmortyapi.com/api/character/${id}`);
+    console.log(myCharacter);
+    await axios.post(`${api_url}rick-and-morty`, {
+      episode: myCharacter.data?.episode.length,
+      gender: myCharacter.data?.gender,
+      id_api: myCharacter.data?.id,
+      image: myCharacter.data?.image,
+      location: myCharacter.data?.location.name,
+      name: myCharacter.data?.name,
+      origin: myCharacter.data?.origin.name,
+      species: myCharacter.data?.species,
+      status: myCharacter.data?.status,
+      type: myCharacter.data?.type,
       user_id: "3407fd6b-b4d3-476d-9365-56867b61ae7e",
     })
       .then(function (response) {
@@ -211,7 +215,7 @@ const Home: NextPage = () => {
                 >
                   <BottomNavigationAction
                     icon={<FavoriteIcon />}
-                    onClick={addToFavorites}
+                    onClick={() => addToFavorites(character.id)}
                   />
                   <BottomNavigationAction icon={<ShareIcon />} />
                 </BottomNavigation>
@@ -237,7 +241,7 @@ const Home: NextPage = () => {
                   <b>Last known location</b>: {info?.location.name}
                 </li>
                 <li className="bg-green-500 rounded-lg p-2">
-                  <b>Number of episodes</b>: {info?.episode.episodeNumber}
+                  <b>Number of episodes</b>: {info?.episode.length}
                 </li>
               </ul>
             </div>
