@@ -1,10 +1,9 @@
 import { NextPage } from "next";
 import { LinkedIn, GitHub, WhatsApp } from "@mui/icons-material";
-import React, { FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { api } from "../api/api_url";
 import { useRouter } from "next/router";
 import nookies from "nookies";
-import { Alert } from "@mui/material";
 
 const ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
 const ONE_SECOND = 1;
@@ -13,51 +12,32 @@ const ONE_HOUR = ONE_MINUTE * 60;
 const ONE_DAY = ONE_HOUR * 24;
 const ONE_YEAR = ONE_DAY * 365;
 
-const Login: NextPage = () => {
+const Signin: NextPage = () => {
   const router = useRouter();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [msgError, setMsgError] = useState<any>();
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     try {
-      const response = await api.post("/login", {
+      const response = await api.post("/users", {
         username: username,
         password: password,
       });
-      if (response.data.status === "Error") {
-        setMsgError(
-          <Alert severity="error" sx={{ mb: 2 }}>
-            Login or password incorrect
-          </Alert>
-        );
 
-      } else {
 
-        setMsgError(
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Success
-          </Alert>
-        );
+      globalThis?.localStorage?.setItem(ACCESS_TOKEN_KEY, response.data);
+      globalThis?.sessionStorage?.setItem(ACCESS_TOKEN_KEY, response.data);
+      nookies.set(null, ACCESS_TOKEN_KEY, response.data, {
+        maxAge: ONE_MINUTE,
+        path: "/",
+      });
 
-        console.log(response.data);
+      router.push(`favorites/${response.data.refreshToken.userId}`);
 
-        globalThis?.localStorage?.setItem(ACCESS_TOKEN_KEY, response.data.refreshToken);
-
-        globalThis?.sessionStorage?.setItem(ACCESS_TOKEN_KEY, response.data.refreshToken);
-
-        nookies.set(null, ACCESS_TOKEN_KEY, response.data.refreshToken, {
-          maxAge: ONE_MINUTE,
-          path: "/",
-        });
-
-        router.push(`favorites/${response.data.refreshToken.userId}`);
-      }
-
+      console.log(response.data);
     } catch (error) {
       console.log(error);
     }
@@ -96,7 +76,8 @@ const Login: NextPage = () => {
             </footer>
           </div>
         </div>
-        <div className="sm:flex-col gap-2 sm:flex sm:justify-center sm:items-center sm:w-1/2 sm:h-screen lg:flex lg:justify-center lg:items-center lg:w-1/2 lg:h-screen p-4 bg-white">
+        <div className="sm:flex-col lg:flex-col sm:flex sm:justify-center sm:items-center sm:w-1/2 sm:h-screen lg:flex lg:justify-center lg:items-center lg:w-1/2 lg:h-screen p-4 bg-white">
+          <h1 className="p-4">Register</h1>
           <form
             className="flex flex-col bg-green-900 shadow-2xl p-4 gap-4 rounded-2xl"
             onSubmit={handleSubmit}
@@ -120,11 +101,10 @@ const Login: NextPage = () => {
               Signin
             </button>
           </form>
-          {msgError}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
-export default Login;
+export default Signin;

@@ -1,2 +1,5 @@
-export const api_url = "https://goa-portfolio-admin.herokuapp.com/";
-// export const api_url = "http://localhost:3333/";
+import axios from "axios";
+
+export const api = axios.create({
+    baseURL: "http://localhost:3000/",
+});

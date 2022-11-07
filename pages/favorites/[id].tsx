@@ -1,5 +1,7 @@
-import { Button, TextField } from "@mui/material";
+import { Button } from "@mui/material";
 import { NextPage } from "next";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,13 +10,9 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import axios, { AxiosResponse } from "axios";
-import { api_url } from "../api/api_url";
-import { useEffect, useState } from "react";
+import { api } from "../api/api_url";
 
-interface ILocation {
-  name: string;
-}
+
 
 interface ILocation {
   name: string;
@@ -43,14 +41,19 @@ interface ICharacter {
 
 const Favorites: NextPage = () => {
 
-  const [yourFavorites, setYourFavorites] = useState<ICharacter[] | any>();
+  const [yourFavorites, setYourFavorites] = useState<ICharacter[] | any[]>([]);
+
+  const router = useRouter();
+  const { userId } = router.query;
+
+  const getFavoritesById = async () => {
+    const response = await api.get(`/favorite/${userId}`);
+    const data: ICharacter[] = response.data
+    setYourFavorites(data)
+  }
 
   useEffect(() => {
-    fetch(`${api_url}rick-and-morty/${"3407fd6b-b4d3-476d-9365-56867b61ae7e"}`)
-      .then(response => response.json())
-      .then(data => {
-        setYourFavorites(data);
-      });
+    getFavoritesById()
   }, []);
 
   return (
@@ -89,12 +92,12 @@ const Favorites: NextPage = () => {
                   gender
                 </TableCell>
                 <TableCell align="right" className="uppercase">
-                  origin
+                  origin?
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {yourFavorites?.map((row: any) => (
+              {yourFavorites.map((row: ICharacter) => (
                 <TableRow
                   key={row.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -106,10 +109,10 @@ const Favorites: NextPage = () => {
                   <TableCell align="right">{row.species}</TableCell>
                   <TableCell align="right">{row.status}</TableCell>
                   <TableCell align="right">{row.type}</TableCell>
-                  <TableCell align="right">{row.location}</TableCell>
-                  <TableCell align="right">{row.episode}</TableCell>
+                  <TableCell align="right">{row.location.name}</TableCell>
+                  <TableCell align="right">{row.episode.length}</TableCell>
                   <TableCell align="right">{row.gender}</TableCell>
-                  <TableCell align="right">{row.origin}</TableCell>
+                  <TableCell align="right">{row.origin.name}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
