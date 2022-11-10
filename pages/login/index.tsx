@@ -3,7 +3,7 @@ import { LinkedIn, GitHub, WhatsApp } from "@mui/icons-material";
 import React, { FormEvent, useState } from "react";
 import { api } from "../api/api_url";
 import { useRouter } from "next/router";
-import nookies from "nookies";
+import nookies, { destroyCookie } from "nookies";
 import { Alert } from "@mui/material";
 
 const ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
@@ -44,18 +44,22 @@ const Login: NextPage = () => {
           </Alert>
         );
 
-        console.log(response.data);
+        destroyCookie(null, 'ACCESS_TOKEN_KEY');
+
+        console.log(response);
+
+        const userNookie = response.data.refreshToken.userId;
 
         globalThis?.localStorage?.setItem(ACCESS_TOKEN_KEY, response.data.refreshToken);
 
         globalThis?.sessionStorage?.setItem(ACCESS_TOKEN_KEY, response.data.refreshToken);
 
-        nookies.set(null, ACCESS_TOKEN_KEY, response.data.refreshToken, {
-          maxAge: ONE_MINUTE,
+        nookies.set(null, ACCESS_TOKEN_KEY, userNookie, {
+          maxAge: ONE_HOUR,
           path: "/",
         });
 
-        router.push(`favorites/${response.data.refreshToken.userId}`);
+        router.push(`/my/favorites`);
       }
 
     } catch (error) {

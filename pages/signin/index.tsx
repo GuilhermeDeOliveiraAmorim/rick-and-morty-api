@@ -27,17 +27,18 @@ const Signin: NextPage = () => {
         password: password,
       });
 
+      const userNookie = response.data.id;
 
-      globalThis?.localStorage?.setItem(ACCESS_TOKEN_KEY, response.data);
-      globalThis?.sessionStorage?.setItem(ACCESS_TOKEN_KEY, response.data);
-      nookies.set(null, ACCESS_TOKEN_KEY, response.data, {
-        maxAge: ONE_MINUTE,
+      globalThis?.localStorage?.setItem(ACCESS_TOKEN_KEY, response.data.refreshToken);
+
+      globalThis?.sessionStorage?.setItem(ACCESS_TOKEN_KEY, response.data.refreshToken);
+
+      nookies.set(null, ACCESS_TOKEN_KEY, userNookie, {
+        maxAge: ONE_HOUR,
         path: "/",
       });
 
-      router.push(`favorites/${response.data.refreshToken.userId}`);
-
-      console.log(response.data);
+      router.push(`/login`);
     } catch (error) {
       console.log(error);
     }

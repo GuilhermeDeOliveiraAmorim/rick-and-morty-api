@@ -1,7 +1,6 @@
 import { Button } from "@mui/material";
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Link from "next/link";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -11,6 +10,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { api } from "../../api/api_url";
+import { parseCookies } from "nookies";
 
 interface ICharacter {
   episode: [];
@@ -27,13 +27,11 @@ interface ICharacter {
 }
 
 const Favorites: NextPage = () => {
+  const cookies = parseCookies();
+
+  const idUser = cookies.ACCESS_TOKEN_KEY;
 
   const [yourFavorites, setYourFavorites] = useState<ICharacter[] | any[]>([]);
-
-  const router = useRouter();
-  const idUser = router.query.id;
-
-  console.log(idUser);
 
   const getFavoritesById = async () => {
     const response = await api.get(`get/favorites/${idUser}`);
@@ -49,7 +47,7 @@ const Favorites: NextPage = () => {
     <div>
       <div className="flex flex-row items-center justify-between p-2 sm:p-10 lg:p-10 bg-green-700 text-white text-2xl">
         <span>Rick and Morty</span>
-        <div className="p-2 bg-white rounded">
+        <div className="flex gap-2 p-2 bg-white rounded">
           <Link href="/">
             <Button className="text-black">Back</Button>
           </Link>

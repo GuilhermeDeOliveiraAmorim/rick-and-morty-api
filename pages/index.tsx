@@ -25,6 +25,7 @@ import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { SetStateAction, useEffect, useState } from "react";
 import { api } from "./api/api_url";
+import { parseCookies } from "nookies";
 
 interface ILocation {
   name: string;
@@ -53,7 +54,8 @@ interface ICharacter {
  */
 
 const Home: NextPage = () => {
-  const idUser = "409d82ba-f094-495d-b95b-f6e0b67d8ba2";
+  const cookies = parseCookies();
+  const idUser = cookies.ACCESS_TOKEN_KEY;
 
   const [page, setPage] = useState<any>(1);
   const [info, setInfo] = useState<ICharacter>();
@@ -187,7 +189,7 @@ const Home: NextPage = () => {
             />
           </div>
           <Link
-            href={`/my/favorites/${idUser}`}
+            href={`/my/favorites`}
             className="p-2 bg-white rounded flex w-1/2 justify-center items-center"
           >
             <Button className="text-black">Favorites</Button>
