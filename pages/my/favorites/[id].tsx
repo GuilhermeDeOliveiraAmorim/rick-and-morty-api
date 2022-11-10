@@ -10,33 +10,20 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { api } from "../api/api_url";
-
-
-
-interface ILocation {
-  name: string;
-}
-
-interface IEpisodeNumber {
-  length: number;
-}
-
-interface IOrigin {
-  name: string;
-}
+import { api } from "../../api/api_url";
 
 interface ICharacter {
-  episode: IEpisodeNumber;
+  episode: [];
   gender: string;
   id: number;
   image: string;
-  location: ILocation;
+  location: string;
   name: string;
-  origin: IOrigin;
+  origin: string;
   species: string;
   status: string;
   type: string;
+  rating: number;
 }
 
 const Favorites: NextPage = () => {
@@ -44,12 +31,14 @@ const Favorites: NextPage = () => {
   const [yourFavorites, setYourFavorites] = useState<ICharacter[] | any[]>([]);
 
   const router = useRouter();
-  const { userId } = router.query;
+  const idUser = router.query.id;
+
+  console.log(idUser);
 
   const getFavoritesById = async () => {
-    const response = await api.get(`/favorite/${userId}`);
-    const data: ICharacter[] = response.data
-    setYourFavorites(data)
+    const response = await api.get(`get/favorites/${idUser}`);
+    const data: ICharacter[] = response.data;
+    setYourFavorites(data);
   }
 
   useEffect(() => {
@@ -92,7 +81,10 @@ const Favorites: NextPage = () => {
                   gender
                 </TableCell>
                 <TableCell align="right" className="uppercase">
-                  origin?
+                  origin
+                </TableCell>
+                <TableCell align="right" className="uppercase">
+                  rating
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -108,11 +100,12 @@ const Favorites: NextPage = () => {
                   <TableCell align="right">{row.name}</TableCell>
                   <TableCell align="right">{row.species}</TableCell>
                   <TableCell align="right">{row.status}</TableCell>
-                  <TableCell align="right">{row.type}</TableCell>
-                  <TableCell align="right">{row.location.name}</TableCell>
-                  <TableCell align="right">{row.episode.length}</TableCell>
+                  <TableCell align="right">{(row.type === "" || row.type === null) ? "unknown" : row.type}</TableCell>
+                  <TableCell align="right">{row.location}</TableCell>
+                  <TableCell align="right">{row.episode}</TableCell>
                   <TableCell align="right">{row.gender}</TableCell>
-                  <TableCell align="right">{row.origin.name}</TableCell>
+                  <TableCell align="right">{row.origin}</TableCell>
+                  <TableCell align="right">{row.rating}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

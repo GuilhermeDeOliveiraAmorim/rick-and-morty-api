@@ -17,22 +17,17 @@ import {
   Typography,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShareIcon from "@mui/icons-material/Share";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import Link from "next/link";
 import { Stack } from "@mui/system";
 import { useQuery } from "@tanstack/react-query";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { SetStateAction, useEffect, useState } from "react";
-import { api_url } from "./api/api_url";
+import { api } from "./api/api_url";
 
 interface ILocation {
   name: string;
-}
-
-interface IEpisodeNumber {
-  length: number;
 }
 
 interface IOrigin {
@@ -40,7 +35,7 @@ interface IOrigin {
 }
 
 interface ICharacter {
-  episode: IEpisodeNumber;
+  episode: [];
   gender: string;
   id: number;
   image: string;
@@ -50,6 +45,7 @@ interface ICharacter {
   species: string;
   status: string;
   type: string;
+  rating: number;
 }
 
 /**
@@ -57,6 +53,8 @@ interface ICharacter {
  */
 
 const Home: NextPage = () => {
+  const idUser = "409d82ba-f094-495d-b95b-f6e0b67d8ba2";
+
   const [page, setPage] = useState<any>(1);
   const [info, setInfo] = useState<ICharacter>();
   const [characterId, setCharacterId] = useState(1);
@@ -64,7 +62,7 @@ const Home: NextPage = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openToast, setOpenToast] = useState(false);
 
-  const [value, setValue] = useState();
+  const [value, setValue] = useState<string>();
   const [favorite, setFavorite] = useState(1);
 
   const router = useRouter();
@@ -115,10 +113,6 @@ const Home: NextPage = () => {
     setOpenModal(false);
   };
 
-  const handleOpenToast = () => {
-    setOpenToast(true);
-  };
-
   const handleCloseToast = (
     event: React.SyntheticEvent | Event,
     reason?: string
@@ -134,22 +128,42 @@ const Home: NextPage = () => {
       `https://rickandmortyapi.com/api/character/${id}`
     );
 
-    await axios
-      .post(`${api_url}rick-and-morty`, {
-        episode: myCharacter.data?.episode.length,
-        gender: myCharacter.data?.gender,
-        id_api: myCharacter.data?.id,
-        image: myCharacter.data?.image,
-        location: myCharacter.data?.location.name,
-        name: myCharacter.data?.name,
-        origin: myCharacter.data?.origin.name,
-        species: myCharacter.data?.species,
-        status: myCharacter.data?.status,
-        type: myCharacter.data?.type,
-        user_id: "3407fd6b-b4d3-476d-9365-56867b61ae7e",
+    const episode = myCharacter.data?.episode.length;
+    const gender = myCharacter.data?.gender;
+    const id_api = myCharacter.data?.id;
+    const image = myCharacter.data?.image;
+    const location = myCharacter.data?.location.name;
+    const name = myCharacter.data?.name;
+    const origin = myCharacter.data?.origin.name;
+    const species = myCharacter.data?.species;
+    const status = myCharacter.data?.status;
+    const type = myCharacter.data?.type;
+    const rating = 1;
+    const userId = idUser;
+
+    await api
+      .post("add/favorite", {
+        episode,
+        gender,
+        id_api,
+        image,
+        location,
+        name,
+        origin,
+        species,
+        status,
+        type,
+        rating,
+        userId
       })
       .then(function (response) {
-        console.log(response);
+        if (response.data.status === "Error") {
+          setValue(`${name} has already been added!`);
+          setOpenToast(true);
+        } else {
+          setValue(`${name} added!`);
+          setOpenToast(true);
+        }
       })
       .catch(function (error) {
         console.log(error);
@@ -157,7 +171,6 @@ const Home: NextPage = () => {
   }
 
   const handleFavorite = (id: number) => {
-    console.log(id);
     setFavorite(id);
   };
 
@@ -174,7 +187,7 @@ const Home: NextPage = () => {
             />
           </div>
           <Link
-            href="/favorites"
+            href={`/my/favorites/${idUser}`}
             className="p-2 bg-white rounded flex w-1/2 justify-center items-center"
           >
             <Button className="text-black">Favorites</Button>
@@ -223,9 +236,7 @@ const Home: NextPage = () => {
                   value={favorite}
                   onChange={(event, newValue) => {
                     handleFavorite(character.id);
-                    console.log(favorite);
                   }}
-                  onClick={handleOpenToast}
                 >
                   <BottomNavigationAction
                     icon={<FavoriteIcon />}
@@ -276,7 +287,7 @@ const Home: NextPage = () => {
         open={openToast}
         autoHideDuration={2000}
         onClose={handleCloseToast}
-        message={`${info?.name} added!`}
+        message={value}
       />
     </div>
   );
